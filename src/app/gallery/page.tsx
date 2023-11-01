@@ -26,7 +26,6 @@ const GalleryPage = () => {
         }
     };
 
-
     // handle all image selection
     const handleCheckedAll = (e: any) => {
         if (e.target.checked) {
@@ -77,7 +76,7 @@ const GalleryPage = () => {
                                     checked={selectedImages.length > 0}
                                     onChange={(e) => handleCheckedAll(e)}
                                 />
-                                <p className="text-2xl">
+                                <p className="text-xl">
                                     {selectedImages.length} Files Selected
                                 </p>
                             </div>
@@ -92,7 +91,7 @@ const GalleryPage = () => {
                         </>
                     ) : (
                         <>
-                            <h1 className=" text-2xl">Gallery</h1>
+                            <h1 className=" text-xl">Gallery</h1>
                         </>
                     )}
                 </div>
@@ -123,7 +122,7 @@ const GalleryPage = () => {
                             ))}
                         </SortableContext>
                     </DndContext>
-                    
+
                     {/* Add Image Section */}
                     <div
                         className="rounded-lg border-2 border-dashed flex flex-col justify-center items-center gap-4 cursor-pointer py-16"
