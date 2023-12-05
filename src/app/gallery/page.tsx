@@ -1,24 +1,33 @@
 "use client";
 
-import { imagesData } from "@/assets/data/imageData";
 import ImageCard from "@/components/ui/ImageCard";
-import { DndContext, closestCenter } from "@dnd-kit/core";
 import {
-    SortableContext,
-    arrayMove,
-    rectSortingStrategy,
-} from "@dnd-kit/sortable";
+    useGetImagesQuery,
+    useSwapImageMutation,
+} from "@/redux/api/galleryApi";
+import { DndContext, closestCenter } from "@dnd-kit/core";
+import { SortableContext, rectSwappingStrategy } from "@dnd-kit/sortable";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { BsCardImage } from "react-icons/bs";
 
+type Image = {
+    id: number;
+    src: string;
+    alt: string;
+    serial: number;
+};
+
 const GalleryPage = () => {
-    const [images, setImages] = useState<any[]>(imagesData);
+    // fetch data from api
+    const { data: images } = useGetImagesQuery({});
+    // console.log(images);
+
+    const [swapImage] = useSwapImageMutation();
     const [selectedImages, setSelectedImages] = useState<number[]>([]);
 
     // handle image selection
     const handleChecked = (e: any, id: number) => {
-        console.log(e);
         if (e.target.checked) {
             setSelectedImages([...selectedImages, id]);
         } else {
@@ -29,7 +38,7 @@ const GalleryPage = () => {
     // handle all image selection
     const handleCheckedAll = (e: any) => {
         if (e.target.checked) {
-            setSelectedImages(images.map((image) => image.id));
+            // setSelectedImages(images.map((image) => image.id));
         } else {
             setSelectedImages([]);
         }
@@ -45,7 +54,7 @@ const GalleryPage = () => {
         toast.success("Deleted Successfully");
 
         // delete selected images
-        setImages(images.filter((image) => !selectedImages.includes(image.id)));
+        // setImages(images.filter((image) => !selectedImages.includes(image.id)));
         // reset selected images
         setSelectedImages([]);
     };
@@ -56,11 +65,17 @@ const GalleryPage = () => {
         if (active.id === over.id) {
             return;
         }
-        setImages((items) => {
-            const oldIndex = items.findIndex((item) => item.id === active.id);
-            const newIndex = items.findIndex((item) => item.id === over.id);
-            return arrayMove(items, oldIndex, newIndex);
+
+        const activeImage = images.find(
+            (image: Image) => image.id === active.id
+        );
+        const overImage = images.find((image: Image) => image.id === over.id);
+
+        swapImage({
+            imageId1: activeImage.id,
+            imageId2: overImage.id,
         });
+        console.log(activeImage.serial, overImage.serial);
     };
 
     return (
@@ -98,30 +113,35 @@ const GalleryPage = () => {
 
                 {/* Image Container */}
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-5  border-t-2 py-4">
-                    <DndContext
-                        collisionDetection={closestCenter}
-                        onDragEnd={onDragEnd}
-                    >
-                        <SortableContext
-                            items={images}
-                            strategy={rectSortingStrategy}
+                    {images && (
+                        <DndContext
+                            collisionDetection={closestCenter}
+                            onDragEnd={onDragEnd}
                         >
-                            {images.map((item, idx) => (
-                                <div
-                                    key={item.id}
-                                    className={`rounded-lg border-2 ${
-                                        idx === 0 ? "col-span-2 row-span-2" : ""
-                                    }`}
-                                >
-                                    <ImageCard
-                                        item={item}
-                                        selectedImages={selectedImages}
-                                        handleChecked={handleChecked}
-                                    />
-                                </div>
-                            ))}
-                        </SortableContext>
-                    </DndContext>
+                            <SortableContext
+                                items={images}
+                                strategy={rectSwappingStrategy}
+                            >
+                                {images &&
+                                    images?.map((item: any, idx: number) => (
+                                        <div
+                                            key={item.id}
+                                            className={`rounded-lg border-2 ${
+                                                idx === 0
+                                                    ? "col-span-2 row-span-2"
+                                                    : ""
+                                            }`}
+                                        >
+                                            <ImageCard
+                                                item={item}
+                                                selectedImages={selectedImages}
+                                                handleChecked={handleChecked}
+                                            />
+                                        </div>
+                                    ))}
+                            </SortableContext>
+                        </DndContext>
+                    )}
 
                     {/* Add Image Section */}
                     <div

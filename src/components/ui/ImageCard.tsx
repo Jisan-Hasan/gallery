@@ -28,6 +28,8 @@ const ImageCard = ({ item, selectedImages, handleChecked }: any) => {
                         }`}
                         src={item.src}
                         alt={item.alt}
+                        width={300}
+                        height={300}
                     />
                     {/* image overlay */}
                     <div className="absolute bottom-0 left-0 right-0 top-0 h-full w-full overflow-hidden bg-gray-400 bg-fixed opacity-0 transition duration-300 ease-in-out hover:opacity-50"></div>
